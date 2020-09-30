@@ -1,0 +1,142 @@
+#Chamando pacotes
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from pandas import DataFrame
+from sklearn import datasets, linear_model
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+import seaborn as sns
+import xlrd
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+import statsmodels.api as sm
+
+#XCO2 TEMPORAL CHART
+
+arquivo=pd.ExcelFile('correlacao.xlsx')
+dados=pd.read_excel(arquivo,'TEMPORAL')
+#dar o nome das variaveis
+x = dados['Time']
+y1 =dados['XCO2_W']
+y2 =dados['XCO2_D']
+
+#puxar o erro padrão da média
+yerror1 = dados['XCO2_WEP']
+yerror2 = dados['XCO2_DEP']
+
+
+Wet = plt.plot(x,y1,color='#035B96', marker='o', linestyle='-', linewidth=1, markersize=5)
+plt.errorbar(x, y1,yerr=yerror1, fmt=' ', ecolor='black', elinewidth=1, capsize=5)
+Dry = plt.plot(x,y2, color='#FF4B4B', marker='v', linestyle='dashed', linewidth=1, markersize=5)
+plt.errorbar(x, y2,yerr=yerror2, fmt=' ', ecolor='black', elinewidth=1, capsize=5)
+
+
+plt.rcParams['figure.figsize'] = (5,5)
+plt.ylabel('X$\mathregular{_{CO2}}$(ppm)',fontsize=12, family='Segoe UI')
+plt.xlabel('Years',fontsize=12, family='Segoe UI')
+plt.xticks([2015,2016,2017,2018])
+
+#legenda feita manual
+red_line1 = mlines.Line2D([], [],color='#035B96',marker='o', linewidth=1,markersize=5, label='Wet')
+red_line2 = mlines.Line2D([], [],color='#FF4B4B',marker='v', linewidth=1,linestyle='dashed', markersize=5,label='Dry')
+plt.legend(handles=[red_line1, red_line2],loc='upper right',borderaxespad=2.)
+
+
+
+#SIF TEMPORAL CHART
+
+
+arquivo=pd.ExcelFile('correlacao.xlsx')
+dados=pd.read_excel(arquivo,'TEMPORAL')
+#dar o nome das variaveis
+x = dados['Time']
+y1 =dados['SIF757_W']
+y2 =dados['SIF757_D']
+y3 = dados['SIF771_W']
+y4 = dados['SIF771_D']
+#puxar o erro padrão da média
+yerror1 = dados['SIF757_WEP']
+yerror2 = dados['SIF757_DEP']
+yerror3 = dados['SIF771_WEP']
+yerror4 = dados['SIF771_DEP']
+
+SIF757Wet = plt.plot(x,y1,color='#317256', marker='o', linestyle='-', linewidth=1, markersize=5)
+plt.errorbar(x, y1,yerr=yerror1, fmt=' ', ecolor='black', elinewidth=1, capsize=5)
+SIF757Dry = plt.plot(x,y2, color='#317256', marker='v', linestyle='dashed', linewidth=1, markersize=5)
+plt.errorbar(x, y2,yerr=yerror2, fmt=' ', ecolor='black', elinewidth=1, capsize=5)
+
+SIF771Wet = plt.plot(x,y3,color='#52BF90', marker='*', linestyle='-', linewidth=1, markersize=5)
+plt.errorbar(x, y3,yerr=yerror3, fmt=' ', ecolor='black', elinewidth=1, capsize=5)
+SI771Dry = plt.plot(x,y4, color='#52BF90', marker='^', linestyle='dashed', linewidth=1, markersize=5)
+plt.errorbar(x, y4,yerr=yerror4, fmt=' ', ecolor='black', elinewidth=1, capsize=5)
+
+
+plt.rcParams['figure.figsize'] = (5,5)
+plt.ylabel('SIF (Wm$\mathregular{^{-2}}$ sr$\mathregular{^{-1}}$ µm$\mathregular{^{-1}}$)',fontsize=12, family='Segoe UI')
+plt.xlabel('Years',fontsize=12, family='Segoe UI')
+plt.xticks([2015,2016,2017,2018])
+#legenda feita manual
+red_line1 = mlines.Line2D([], [],color='#317256',marker='o', linewidth=1,markersize=5, label='SIF757 Wet')
+red_line2 = mlines.Line2D([], [],color='#317256',marker='v', linewidth=1,markersize=5,linestyle='dashed', label='SIF757 Dry')
+red_line3 = mlines.Line2D([], [],color='#52BF90',marker='*', linewidth=1,markersize=5, label='SIF771 Wet')
+red_line4 = mlines.Line2D([], [],color='#52BF90',marker='^', linewidth=1,markersize=5,linestyle='dashed',label='SIF771 Dry')
+plt.legend(handles=[red_line1, red_line2, red_line3, red_line4],loc='upper right',borderaxespad=2.)
+
+
+
+#PEARSON CORRELATION 
+
+
+arquivo=pd.ExcelFile('correlacao.xlsx')
+data=pd.read_excel(arquivo,'Planilha2')
+
+sns.set_style(style="darkgrid")
+
+g = sns.jointplot(x="SIF771", y="XCO2", data=data,
+                  kind="reg", truncate=False,
+                  color="#035B96", height=4)
+
+pvalue = 0.01
+plt.text(0.2, 393.9,'pvalue = <%0.2f' % pvalue,family='Segoe UI')
+plt.text(0.2, 393.5, 'r= -0.84')
+
+#formatando figura
+plt.xlabel('SIF771 (Wm$\mathregular{^{-2}}$ sr$\mathregular{^{-1}}$ µm$\mathregular{^{-1}}$)',fontsize=12, family='Segoe UI')
+plt.ylabel('X$\mathregular{_{CO2}}$ (ppm)',fontsize=12, family='Segoe UI')
+
+
+
+#calculando correlação
+x=data['SIF771']
+y=data['XCO2']
+from scipy import stats
+stats.pearsonr(x,y)
+
+
+
+
+
+
+arquivo=pd.ExcelFile('correlacao.xlsx')
+data=pd.read_excel(arquivo,'Planilha2')
+
+sns.set_style(style="darkgrid")
+
+g = sns.jointplot(x="SIF757", y="XCO2", data=data,
+                  kind="reg", truncate=False,
+                  color="#031F4B", height=4)
+#formatando figura
+plt.xlabel('SIF757 (Wm$\mathregular{^{-2}}$ sr$\mathregular{^{-1}}$ µm$\mathregular{^{-1}}$)',fontsize=12, family='Segoe UI')
+plt.ylabel('X$\mathregular{_{CO2}}$ (ppm)',fontsize=12, family='Segoe UI')
+
+
+pvalue = 0.01
+plt.text(0.2, 393.9,'pvalue = <%0.2f' % pvalue,family='Segoe UI')
+plt.text(0.2, 393.5, 'r= -0.77')
+
+#calculando correlação
+x=data['SIF757']
+y=data['XCO2']
+from scipy import stats
+stats.pearsonr(x,y)
